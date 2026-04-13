@@ -27,27 +27,27 @@ python rfchost-monitor.py --loop --interval 60
 python rfchost-monitor.py --loop --headful
 ```
 
-### Halo Cloud Stock Monitor
+### HaloCloud Stock Monitor
 
-Monitors Halo Cloud (https://my.halocloud.net) for $0.75/mo VPS products in JP Tokyo and SG Singapore regions.
+Monitors HaloCloud (https://my.halocloud.net) for $0.75/mo VPS products in JP Tokyo and SG Singapore regions.
 
 **Files:**
-- `halo-check.py` - One-time stock check
-- `halo-monitor.py` - Continuous monitoring with Telegram notifications
+- `halocloud-check.py` - One-time stock check
+- `halocloud-monitor.py` - Continuous monitoring with Telegram notifications
 
 **Usage:**
 ```bash
 # One-time check
-python halo-check.py
+python halocloud-check.py
 
 # Continuous monitoring (checks every 5 minutes by default)
-python halo-monitor.py --loop
+python halocloud-monitor.py --loop
 
 # With custom interval (e.g., every 60 seconds)
-python halo-monitor.py --loop --interval 60
+python halocloud-monitor.py --loop --interval 60
 
 # Show browser (for debugging)
-python halo-monitor.py --loop --headful
+python halocloud-monitor.py --loop --headful
 ```
 
 ## Requirements

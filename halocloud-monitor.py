@@ -33,7 +33,7 @@ PRODUCT_PAGES = {
 }
 
 # State file
-STATE_FILE = Path("/root/.openclaw/workspace/.halo-stock-state.json")
+STATE_FILE = Path("/root/.openclaw/workspace/.halocloud-stock-state.json")
 
 # ============== State Management ==============
 def load_state():
