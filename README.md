@@ -27,9 +27,34 @@ python rfchost-monitor.py --loop --interval 60
 python rfchost-monitor.py --loop --headful
 ```
 
-**Requirements:**
+### Halo Cloud Stock Monitor
+
+Monitors Halo Cloud (https://my.halocloud.net) for $0.75/mo VPS products in JP Tokyo and SG Singapore regions.
+
+**Files:**
+- `halo-check.py` - One-time stock check
+- `halo-monitor.py` - Continuous monitoring with Telegram notifications
+
+**Usage:**
+```bash
+# One-time check
+python halo-check.py
+
+# Continuous monitoring (checks every 5 minutes by default)
+python halo-monitor.py --loop
+
+# With custom interval (e.g., every 60 seconds)
+python halo-monitor.py --loop --interval 60
+
+# Show browser (for debugging)
+python halo-monitor.py --loop --headful
+```
+
+## Requirements
+
 - Python 3.8+
 - Playwright (`pip install playwright && playwright install chromium`)
+- Telegram Bot Token and Chat ID (configured in monitor scripts)
 
 ## Adding New Monitors
 
