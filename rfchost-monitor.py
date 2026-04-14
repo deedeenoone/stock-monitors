@@ -160,25 +160,25 @@ def display_results(results):
         link = format_product_link(pid)
         
         if stock is None:
-            unknown_list.append(f"   ⚠️ {link} ({price}) - Unknown")
+            unknown_list.append(f"   ⚠️ {link} ({price}) - 未知")
         elif stock == 0:
-            sold_out_list.append(f"   ❌ {link} ({price}) - Sold Out")
+            sold_out_list.append(f"   ❌ {link} ({price}) - 缺货")
         else:
-            available_list.append(f"   ✅ {link} ({price}) - {stock} in stock")
+            available_list.append(f"   ✅ {link} ({price}) - 剩余 {stock} 件")
     
     print()
     if available_list:
-        print("[In Stock]")
+        print("[有货]")
         for item in available_list:
             print(item)
     
     if sold_out_list:
-        print("\n[Sold Out]")
+        print("\n[缺货]")
         for item in sold_out_list:
             print(item)
     
     if unknown_list:
-        print("\n[Unknown Status]")
+        print("\n[未知状态]")
         for item in unknown_list:
             print(item)
     
@@ -221,7 +221,7 @@ def run_monitor(loop=False, interval=300, headless=True):
                 total_available = sum(1 for s in current_state.values() if s and s > 0)
                 total_sold_out = sum(1 for s in current_state.values() if s == 0)
                 
-                print(f"\n📊 Stats: {total_available} in stock, {total_sold_out} sold out")
+                print(f"\n📊 统计: 有货 {total_available} 款, 缺货 {total_sold_out} 款")
                 
                 # Check for status changes and notify
                 newly_available = []
@@ -231,15 +231,15 @@ def run_monitor(loop=False, interval=300, headless=True):
                         if was_stock == 0:
                             link = format_product_link(pid)
                             price = ALL_PRODUCTS[pid]["price"]
-                            newly_available.append(f"• {link} ({price}) - {stock} in stock")
+                            newly_available.append(f"• {link} ({price}) - 剩余 {stock} 件")
                 
                 if newly_available:
-                    message = "🚨 <b>RFCHost Restocked!</b>\n\n"
-                    message += "Just back in stock:\n"
+                    message = "🚨 <b>RFCHost 有货啦！</b>\n\n"
+                    message += "刚补货的产品：\n"
                     for item in newly_available:
                         message += f"{item}\n"
                     message += f"\n⏰ Time: {timestamp}"
-                    message += f"\n\n<a href='https://payment.rfchost.com'>Buy Now →</a>"
+                    message += f"\n\n<a href='https://payment.rfchost.com'>立即购买 →</a>"
                     
                     print(f"\n📱 Sending Telegram notification...")
                     send_telegram(message)
