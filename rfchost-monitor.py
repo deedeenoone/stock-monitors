@@ -239,7 +239,7 @@ def run_monitor(loop=False, interval=300, headless=True):
                     for item in newly_available:
                         message += f"{item}\n"
                     message += f"\n⏰ Time: {timestamp}"
-                    message += f"\n\n<a href='https://payment.rfchost.com'>立即购买 →</a>"
+                    message += f"\n\n立即点上方产品链接购买"
                     
                     print(f"\n📱 Sending Telegram notification...")
                     send_telegram(message)
