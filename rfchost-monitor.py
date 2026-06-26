@@ -14,6 +14,7 @@ import argparse
 import urllib.request
 import urllib.error
 import re
+from html import unescape
 from datetime import datetime
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -30,6 +31,7 @@ PRODUCT_PAGES = {
         "products": {
             "jp2-co-micro": {"Name": "JP2-CO-Micro", "price": "$11.40/mo", "slug": "jp2-co-micro"},
             "jp2-co-mini": {"Name": "JP2-CO-Mini", "price": "$16.49/mo", "slug": "jp2-co-mini"},
+            "jp2-co-clawless-air": {"Name": "JP2-CO-Clawless-Air", "price": "$9.90/mo", "slug": "jp2-co-clawless-air"},
             "jp2-co-standard": {"Name": "JP2-CO-Standard", "price": "$26.49/mo", "slug": "jp2-co-standard"},
             "jp2-co-advanced": {"Name": "JP2-CO-Advanced", "price": "$36.49/mo", "slug": "jp2-co-advanced"},
         }
@@ -103,6 +105,46 @@ def parse_page_stock(html):
     available_matches = re.findall(r'(\d+)\s+(?:available|in stock)', html, re.I)
     return [int(x) for x in available_matches]
 
+
+def normalize_text(value):
+    return re.sub(r'\s+', ' ', unescape(value)).strip().lower()
+
+
+def parse_product_blocks(text, page_info):
+    """Extract per-product availability from rendered page text."""
+    normalized_text = normalize_text(text)
+    products = list(page_info["products"].items())
+    results = {}
+
+    for index, (pid, product) in enumerate(products):
+        current_name = normalize_text(product["Name"])
+        start = normalized_text.find(current_name)
+
+        if start == -1:
+            results[pid] = None
+            continue
+
+        search_from = start + len(current_name)
+        end = len(normalized_text)
+
+        for _, next_product in products[index + 1:]:
+            next_name = normalize_text(next_product["Name"])
+            next_pos = normalized_text.find(next_name, search_from)
+            if next_pos != -1:
+                end = next_pos
+                break
+
+        block = normalized_text[start:end]
+        stock_match = re.search(r'(\d+)\s+available', block, re.I)
+        if stock_match:
+            results[pid] = int(stock_match.group(1))
+        elif 'order now' in block:
+            results[pid] = 1
+        else:
+            results[pid] = None
+
+    return results
+
 def check_page_products(page, page_key, page_info):
     """Check all product statuses and stock for a given page"""
     results = {}
@@ -112,14 +154,19 @@ def check_page_products(page, page_key, page_info):
         page.wait_for_timeout(3000)
         
         html = page.content()
-        stock_list = parse_page_stock(html)
-        
-        # Match products in order
-        for i, pid in enumerate(page_info["products"]):
-            if i < len(stock_list):
-                results[pid] = stock_list[i]
-            else:
-                results[pid] = None
+        page_text = page.locator('body').inner_text()
+        parsed_blocks = parse_product_blocks(page_text, page_info)
+
+        if all(stock is None for stock in parsed_blocks.values()):
+            stock_list = parse_page_stock(html)
+
+            for i, pid in enumerate(page_info["products"]):
+                if i < len(stock_list):
+                    results[pid] = stock_list[i]
+                else:
+                    results[pid] = None
+        else:
+            results.update(parsed_blocks)
             
     except Exception as e:
         print(f"   ❌ {page_info['name']}: {e}")
